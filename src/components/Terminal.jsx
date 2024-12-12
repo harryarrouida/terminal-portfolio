@@ -5,26 +5,17 @@ import projects from "../data/projects";
 import skills from "../data/skills";
 import SnakeGame from "./SnakeGame";
 
-import { 
-  FaReact, FaNodeJs, FaDatabase, FaGithub, 
-  FaRocket, FaCode, FaDocker, FaTools,
-  FaChess, FaCoffee, FaLightbulb, FaClock,
-  FaEnvelope, FaLinkedin, FaFileAlt, FaHeart,
-  FaComment, FaTwitter, FaInfo, FaBriefcase,
-  FaStar, FaFilm, FaKey, FaQuoteLeft, FaLaugh
+import {
+    FaNodeJs, FaDatabase, FaGithub, 
+    FaRocket, FaCode, FaTools, FaCoffee, FaLightbulb, FaClock,
+    FaEnvelope, FaLinkedin, FaFileAlt, FaInstagram,
+    FaComment, FaTwitter, FaInfo, FaBriefcase,
+    FaStar, FaFilm, FaKey, FaQuoteLeft, FaLaugh
 } from 'react-icons/fa';
 import { 
-  BiErrorCircle, BiInfoCircle, BiRightArrow 
+    BiErrorCircle, BiInfoCircle, BiRightArrow 
 } from 'react-icons/bi';
-import { 
-  DiMongodb, DiMysql, DiJavascript 
-} from 'react-icons/di';
-import { 
-  SiTailwindcss, SiExpress, SiFirebase 
-} from 'react-icons/si';
-import { quotes } from '../data/quotes';
-import { jokes } from '../data/jokes';
-import { animeList } from '../data/anime';
+
 import { fetchQuote, fetchJoke, fetchAnime, fetchFact } from '../services/api';
 
 const TerminalComponent = (props = {}) => {
@@ -118,12 +109,24 @@ const TerminalComponent = (props = {}) => {
                       {project.description}
                     </div>
                     <div className="flex gap-4 mt-2">
-                      <a href={project.github} className={`${themeColors.link} flex items-center gap-2 hover:opacity-80`}>
-                        <FaGithub /> GitHub
-                      </a>
-                      <a href={project.demo} className={`${themeColors.success} flex items-center gap-2 hover:opacity-80`}>
-                        <FaRocket /> Demo
-                      </a>
+                      {project.github ? (
+                        <a href={project.github} className={`${themeColors.link} flex items-center gap-2 hover:opacity-80`}>
+                          <FaGithub /> GitHub
+                        </a>
+                      ) : (
+                        <span className={`${themeColors.muted} flex items-center gap-2`}>
+                          <FaGithub /> Coming Soon
+                        </span>
+                      )}
+                      {project.demo ? (
+                        <a href={project.demo} className={`${themeColors.success} flex items-center gap-2 hover:opacity-80`}>
+                          <FaRocket /> Demo
+                        </a>
+                      ) : (
+                        <span className={`${themeColors.muted} flex items-center gap-2`}>
+                          <FaRocket /> Coming Soon
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -182,7 +185,6 @@ const TerminalComponent = (props = {}) => {
           </TerminalOutput>
         );
         break;
-      case "view":
         const projectName = args.join(' ');
         const project = projects.find(p => p.name.toLowerCase() === projectName.toLowerCase());
         if (project) {
@@ -210,7 +212,12 @@ const TerminalComponent = (props = {}) => {
               <div className="flex items-center gap-2">
                 <FaFileAlt />
                 <span>Download my resume: </span>
-                <a href="/path-to-your-resume.pdf" className="text-blue-400 hover:underline" target="_blank">resume.pdf</a>
+                <a
+                  href="https://drive.google.com/file/d/1Qe5-pRYPQnA9dy6wGpWo9KDws553mDzS/view?usp=drive_link"
+                  className="text-blue-400 hover:underline"
+                >
+                  resume.pdf
+                </a>
               </div>
             }
             color={themeColors.success}
@@ -224,7 +231,7 @@ const TerminalComponent = (props = {}) => {
               text={
                 <div className="flex items-center gap-2">
                   <FaEnvelope />
-                  <span>Email: your.email@example.com</span>
+                  <span>Email: hamzaarrouida@gmail.com</span>
                 </div>
               }
               color={themeColors.link}
@@ -233,7 +240,34 @@ const TerminalComponent = (props = {}) => {
               text={
                 <div className="flex items-center gap-2">
                   <FaLinkedin />
-                  <span>LinkedIn: linkedin.com/in/yourprofile</span>
+                  <span>
+                    LinkedIn:{" "}
+                    <a href="https://www.linkedin.com/in/hamza-arrouida-b2a37a2a9/">hamza-arrouida</a>
+                  </span>
+                </div>
+              }
+              color={themeColors.link}
+            />
+            <TypedOutput
+              text={
+                <div className="flex items-center gap-2">
+                  <FaGithub />
+                  <span>
+                    GitHub:{" "}
+                    <a href="https://github.com/harryarrouida">@harryarrouida</a>
+                  </span>
+                </div>
+              }
+              color={themeColors.link}
+            />
+            <TypedOutput
+              text={
+                <div className="flex items-center gap-2">
+                  <FaInstagram />
+                  <span>
+                    Instagram:{" "}
+                    <a href="https://instagram.com/nnvncbl">@nnvncbl</a>
+                  </span>
                 </div>
               }
               color={themeColors.link}
@@ -385,7 +419,6 @@ const TerminalComponent = (props = {}) => {
           />
         );
         break;
-      case "portfolio":
         newOutput = (
           <TypedOutput
             text={
@@ -413,13 +446,13 @@ const TerminalComponent = (props = {}) => {
                   <span>I'd love to hear your thoughts! You can reach me at:</span>
                 </div>
                 <div className="ml-6 flex flex-col gap-1">
-                  <a href="mailto:your.email@example.com" className="text-blue-400 hover:underline">
+                  <a href="mailto:hamzaarrouida@gmail.com" className="text-blue-400 hover:underline">
                     <FaEnvelope className="inline mr-2" />
-                    your.email@example.com
+                    hamzaarrouida@gmail.com
                   </a>
-                  <a href="https://twitter.com/yourhandle" className="text-blue-400 hover:underline">
-                    <FaTwitter className="inline mr-2" />
-                    @yourhandle
+                  <a href="https://instagram.com/nnvncbl" className="text-blue-400 hover:underline">
+                    <FaInstagram className="inline mr-2" />
+                    @nnvncbl
                   </a>
                 </div>
               </div>

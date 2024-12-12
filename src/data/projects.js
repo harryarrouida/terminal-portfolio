@@ -3,7 +3,7 @@ const projects = [
     name: "Terminal Portfolio",
     description: "Interactive terminal-style portfolio website built with React",
     github: "https://github.com/yourusername/terminal-portfolio",
-    demo: "https://your-terminal-portfolio.vercel.app",
+    demo: null,
   },
   {
     name: "Project Two",
