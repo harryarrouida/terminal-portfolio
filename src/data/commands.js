@@ -1,0 +1,26 @@
+const commands = {
+    help: "Lists all available commands.",
+    about: "Displays information about me.",
+    projects: "Lists my projects with descriptions.",
+    skills: "Displays my tech stack.",
+    snake: "Play a game of Snake! Use arrow keys to control the snake.",
+    clear: "Clears the terminal screen.",
+    view: "View details about a specific project. Usage: view <project-name>",
+    resume: "Displays my resume in plain text or provides a download link.",
+    contact: "Displays my contact information (email, LinkedIn, etc.) with links.",
+    anime: "Lists my favorite anime and why I love them.",
+    chess: "Shows my chess achievements or links to my profiles.",
+    theme: "Switch between light and dark terminal themes.",
+    tea: "Reveals fun tea facts or a random tea recommendation.",
+    secret: "Unlocks a hidden Easter egg or fun fact about me.",
+    quote: "Displays a random motivational quote.",
+    uptime: "Shows how long the terminal has been running.",
+    portfolio: "Explains the purpose of this terminal portfolio.",
+    feedback: "Provides a way for users to give feedback about the portfolio.",
+    play: "Launch a mini-game or interactive feature (e.g., Tic-Tac-Toe).",
+    echo: "Repeats back whatever you type after the command. Usage: echo <text>",
+    joke: "Tells a random programming joke.",
+    hireme: "Displays reasons why you should hire me and links to my CV or portfolio.",
+};
+
+export default commands;

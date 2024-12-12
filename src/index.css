@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes typing {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.typed-text {
+  display: inline-block;
+}
+
+.cursor-pointer {
+  cursor: context-menu;
+}
+
+.cursor-pointer:active {
+  cursor: progress;
+}
+
+/* Only show underline when Ctrl key is pressed */
+.cursor-pointer:hover {
+  text-decoration: none;
+}
+
+body.ctrl-pressed .cursor-pointer:hover {
+  text-decoration: underline;
+}
+
+.terminal-output-text {
+  display: block;
+  width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.terminal-output-text > div {
+  width: 100%;
+}
+
+.terminal-output-text span {
+  display: inline;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* For command outputs that need to preserve line breaks */
+.terminal-output-text pre {
+  width: 100%;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.terminal-container {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Style for long text content */
+.terminal-output-text > div {
+  max-width: calc(100% - 2rem);
+  overflow-wrap: break-word;
+}
+
+/* Style for code blocks or pre-formatted text */
+.terminal-output-text pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+/* Ensure links don't overflow */
+.terminal-output-text a {
+  word-break: break-all;
+}
+
+/* Ensure consistent spacing for wrapped lines */
+.terminal-output-text p {
+  margin: 0;
+  padding: 0.25rem 0;
+}
+
+/* Handle long words and URLs */
+.terminal-output-text {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -ms-word-break: break-all;
+  word-break: break-word;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
