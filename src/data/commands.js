@@ -17,6 +17,7 @@ const commands = {
     echo: "Repeats back whatever you type after the command. Usage: echo <text>",
     joke: "Hear a programming joke.",
     hireme: "See why you should hire this developer.",
+    weather: "Check weather for a specific city (usage: weather <city>)",
 };
 
 export default commands;

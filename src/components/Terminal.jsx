@@ -10,13 +10,13 @@ import {
     FaRocket, FaCode, FaTools, FaCoffee, FaLightbulb, FaClock,
     FaEnvelope, FaLinkedin, FaFileAlt, FaInstagram,
     FaComment, FaTwitter, FaInfo, FaBriefcase,
-    FaStar, FaFilm, FaKey, FaQuoteLeft, FaLaugh
+    FaStar, FaFilm, FaKey, FaQuoteLeft, FaLaugh, FaCloud
 } from 'react-icons/fa';
 import { 
     BiErrorCircle, BiInfoCircle, BiRightArrow 
 } from 'react-icons/bi';
 
-import { fetchQuote, fetchJoke, fetchAnime, fetchFact } from '../services/api';
+import { fetchQuote, fetchJoke, fetchAnime, fetchFact, fetchWeather } from '../services/api';
 
 const TerminalComponent = (props = {}) => {
   const [terminalLineData, setTerminalLineData] = useState([
@@ -474,6 +474,57 @@ const TerminalComponent = (props = {}) => {
             color={themeColors.success}
           />
         );
+        break;
+      case "weather":
+        if (args.length === 0) {
+          newOutput = (
+            <TypedOutput
+              text={
+                <div className="flex items-center gap-2">
+                  <BiErrorCircle />
+                  <span>Usage: weather &lt;city&gt;</span>
+                </div>
+              }
+              color={themeColors.error}
+            />
+          );
+        } else {
+          const city = args.join(' ');
+          const weather = await fetchWeather(city);
+          if (weather) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <FaCloud />
+                      <span className="font-bold">{weather.city}, {weather.country}</span>
+                    </div>
+                    <div className="ml-6">
+                      <div>Temperature: {weather.temperature}°C</div>
+                      <div>Condition: {weather.description}</div>
+                      <div>Humidity: {weather.humidity}%</div>
+                      <div>Wind Speed: {weather.windSpeed} m/s</div>
+                    </div>
+                  </div>
+                }
+                color={themeColors.info}
+              />
+            );
+          } else {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>City not found or weather service unavailable.</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          }
+        }
         break;
       default:
         newOutput = (
