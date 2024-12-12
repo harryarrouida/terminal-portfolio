@@ -520,7 +520,11 @@ const TerminalComponent = (props = {}) => {
                   text={
                     <div className="flex flex-col gap-2">
                       <div>Skipped {skippedCountry}! Here's your new country:</div>
-                      <img src={newCountry.flag} alt="Country Flag" className="h-16 my-2" />
+                      <img 
+                        src={newCountry.flag} 
+                        alt="Country Flag" 
+                        className="h-48 w-72 object-contain my-2 rounded-lg shadow-lg" 
+                      />
                       <div>Commands:</div>
                       <div className="ml-4">- 'country hint' for a hint</div>
                       <div className="ml-4">- 'country guess &lt;country name&gt;' to make a guess</div>
@@ -541,16 +545,32 @@ const TerminalComponent = (props = {}) => {
             }
           }
         } else if (args[0] === "hint" && currentGame) {
-          if (hintsUsed >= currentGame.hints.length) {
+          if (hintsUsed >= currentGame.hints.length + currentGame.name.length) {
             newOutput = (
               <TypedOutput
                 text={
                   <div className="flex items-center gap-2">
                     <BiErrorCircle />
-                    <span>No more hints available!</span>
+                    <span>No more hints available! The answer has been fully revealed!</span>
                   </div>
                 }
                 color={themeColors.error}
+              />
+            );
+          } else if (hintsUsed >= currentGame.hints.length) {
+            const revealedCount = hintsUsed - currentGame.hints.length;
+            const revealed = currentGame.name.slice(0, revealedCount + 1);
+            const masked = currentGame.name.slice(revealedCount + 1).replace(/./g, '_');
+            setHintsUsed(hintsUsed + 1);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaLightbulb />
+                    <span>Letter reveal: {revealed + masked}</span>
+                  </div>
+                }
+                color={themeColors.warning}
               />
             );
           } else {
@@ -592,7 +612,11 @@ const TerminalComponent = (props = {}) => {
                       <span>Congratulations! You guessed correctly!</span>
                     </div>
                     <div className="ml-6">
-                      <img src={currentGame.flag} alt={`Flag of ${currentGame.name}`} className="h-16 my-2" />
+                      <img 
+                        src={currentGame.flag} 
+                        alt={`Flag of ${currentGame.name}`} 
+                        className="h-48 w-72 object-contain my-2 rounded-lg shadow-lg" 
+                      />
                       <div>Country: {currentGame.name}</div>
                       <div>Capital: {currentGame.capital}</div>
                       <div>Score: {score} points</div>
@@ -628,7 +652,11 @@ const TerminalComponent = (props = {}) => {
                 text={
                   <div className="flex flex-col gap-2">
                     <div>🌍 Welcome to Guess the Country!</div>
-                    <img src={country.flag} alt="Country Flag" className="h-16 my-2" />
+                    <img 
+                      src={country.flag} 
+                      alt="Country Flag" 
+                      className="h-48 w-72 object-contain my-2 rounded-lg shadow-lg" 
+                    />
                     <div>I'm thinking of a country... Try to guess it!</div>
                     <div>Commands:</div>
                     <div className="ml-4">- 'country hint' for a hint</div>
@@ -784,16 +812,32 @@ const TerminalComponent = (props = {}) => {
             }
           }
         } else if (args[0] === "hint" && currentHPGame) {
-          if (hpHintsUsed >= currentHPGame.hints.length) {
+          if (hpHintsUsed >= currentHPGame.hints.length + currentHPGame.name.length) {
             newOutput = (
               <TypedOutput
                 text={
                   <div className="flex items-center gap-2">
                     <FaSkull />
-                    <span>No more hints available!</span>
+                    <span>No more hints available! The answer has been fully revealed!</span>
                   </div>
                 }
                 color={themeColors.error}
+              />
+            );
+          } else if (hpHintsUsed >= currentHPGame.hints.length) {
+            const revealedCount = hpHintsUsed - currentHPGame.hints.length;
+            const revealed = currentHPGame.name.slice(0, revealedCount + 1);
+            const masked = currentHPGame.name.slice(revealedCount + 1).replace(/./g, '_');
+            setHPHintsUsed(hpHintsUsed + 1);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaMagic />
+                    <span>Letter reveal: {revealed + masked}</span>
+                  </div>
+                }
+                color={themeColors.warning}
               />
             );
           } else {
@@ -970,16 +1014,32 @@ const TerminalComponent = (props = {}) => {
             }
           }
         } else if (args[0] === "hint" && currentMarvelGame) {
-          if (marvelHintsUsed >= currentMarvelGame.hints.length) {
+          if (marvelHintsUsed >= currentMarvelGame.hints.length + currentMarvelGame.name.length) {
             newOutput = (
               <TypedOutput
                 text={
                   <div className="flex items-center gap-2">
                     <FaSkull />
-                    <span>No more hints available!</span>
+                    <span>No more hints available! The answer has been fully revealed!</span>
                   </div>
                 }
                 color={themeColors.error}
+              />
+            );
+          } else if (marvelHintsUsed >= currentMarvelGame.hints.length) {
+            const revealedCount = marvelHintsUsed - currentMarvelGame.hints.length;
+            const revealed = currentMarvelGame.name.slice(0, revealedCount + 1);
+            const masked = currentMarvelGame.name.slice(revealedCount + 1).replace(/./g, '_');
+            setMarvelHintsUsed(marvelHintsUsed + 1);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaMask />
+                    <span>Letter reveal: {revealed + masked}</span>
+                  </div>
+                }
+                color={themeColors.warning}
               />
             );
           } else {
