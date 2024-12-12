@@ -16,9 +16,12 @@ const commands = {
     uptime: "See how long you've been browsing.",
     echo: "Repeats back whatever you type after the command. Usage: echo <text>",
     joke: "Hear a programming joke.",
-    hireme: "See why you should hire this developer.",
+    // hireme: "See why you should hire this developer.",
     weather: "Check weather for a specific city (usage: weather <city>)",
     country: "Play the guess the country game (usage: country start)",
+    news: "Get top headlines by category (usage: news <category>). Categories: business, technology, sports, entertainment, science, health",
+    hogwarts: "Play the Harry Potter character guessing game (usage: hogwarts start/hint/guess/skip)",
+    // marvel: "Play the Marvel character guessing game (usage: marvel start/hint/guess/skip)",
 };
 
 export default commands;

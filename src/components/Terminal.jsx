@@ -10,13 +10,13 @@ import {
     FaRocket, FaCode, FaTools, FaCoffee, FaLightbulb, FaClock,
     FaEnvelope, FaLinkedin, FaFileAlt, FaInstagram,
     FaComment, FaBriefcase,
-    FaStar, FaFilm, FaKey, FaQuoteLeft, FaLaugh, FaCloud, 
+    FaStar, FaFilm, FaKey, FaQuoteLeft, FaLaugh, FaCloud, FaNewspaper, FaHatWizard, FaMagic, FaSkull, FaSuperpowers, FaMask
 } from 'react-icons/fa';
 import { 
     BiErrorCircle, BiInfoCircle, BiRightArrow 
 } from 'react-icons/bi';
 
-import { fetchQuote, fetchJoke, fetchAnime, fetchFact, fetchWeather, searchMusic, fetchRandomCountry } from '../services/api';
+import { fetchQuote, fetchJoke, fetchAnime, fetchFact, fetchWeather, searchMusic, fetchRandomCountry, fetchNews, fetchHPCharacter, fetchMarvelCharacter } from '../services/api';
 
 const TerminalComponent = (props = {}) => {
   const [terminalLineData, setTerminalLineData] = useState([
@@ -28,6 +28,10 @@ const TerminalComponent = (props = {}) => {
   const [startTime] = useState(new Date());
   const [currentGame, setCurrentGame] = useState(null);
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [currentHPGame, setCurrentHPGame] = useState(null);
+  const [hpHintsUsed, setHPHintsUsed] = useState(0);
+  const [currentMarvelGame, setCurrentMarvelGame] = useState(null);
+  const [marvelHintsUsed, setMarvelHintsUsed] = useState(0);
 
   // Helper function to get theme-appropriate colors
   const getThemeColor = useCallback((darkColor, lightColor) => {
@@ -655,6 +659,472 @@ const TerminalComponent = (props = {}) => {
                   <div className="ml-4">- 'country hint' for a hint</div>
                   <div className="ml-4">- 'country guess &lt;country name&gt;' to make a guess</div>
                   <div className="ml-4">- 'country skip' to skip current country</div>
+                </div>
+              }
+              color={themeColors.info}
+            />
+          );
+        }
+        break;
+      case "news":
+        const validCategories = ['business', 'technology', 'sports', 'entertainment', 'science', 'health', 'general'];
+        const category = args[0]?.toLowerCase() || 'general';
+        
+        if (!validCategories.includes(category)) {
+          newOutput = (
+            <TypedOutput
+              text={
+                <div className="flex items-center gap-2">
+                  <BiErrorCircle />
+                  <span>
+                    Invalid category. Available categories: {validCategories.join(', ')}
+                  </span>
+                </div>
+              }
+              color={themeColors.error}
+            />
+          );
+        } else {
+          const news = await fetchNews(category);
+          if (news) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-2">
+                      <FaNewspaper />
+                      <span className="font-bold capitalize">Top {category} Headlines</span>
+                    </div>
+                    {news.map((article, index) => (
+                      <div key={index} className="ml-6 flex flex-col gap-1">
+                        <a 
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${themeColors.link} hover:underline font-medium`}
+                        >
+                          {article.title}
+                        </a>
+                        <div className={`${themeColors.muted} text-sm`}>
+                          {article.description}
+                        </div>
+                        <div className="text-sm">
+                          <span className={themeColors.accent}>{article.source}</span>
+                          <span className={themeColors.muted}> • {article.publishedAt}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                }
+                color={themeColors.primary}
+              />
+            );
+          } else {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>Failed to fetch news. Please try again.</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          }
+        }
+        break;
+      case "hogwarts":
+        if (args[0] === "skip") {
+          if (!currentHPGame) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>No active game! Type 'hogwarts start' to begin.</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else {
+            const skippedCharacter = currentHPGame.name;
+            const newCharacter = await fetchHPCharacter();
+            if (newCharacter) {
+              setCurrentHPGame(newCharacter);
+              setHPHintsUsed(0);
+              newOutput = (
+                <TypedOutput
+                  text={
+                    <div className="flex flex-col gap-2">
+                      <div>The character was {skippedCharacter}! Here's your new character:</div>
+                      <img 
+                        src={newCharacter.image} 
+                        alt="Character" 
+                        className="h-48 w-40 object-cover my-2 rounded-lg shadow-lg" 
+                      />
+                      <div>Commands:</div>
+                      <div className="ml-4">- 'hogwarts hint' for a hint</div>
+                      <div className="ml-4">- 'hogwarts guess &lt;character name&gt;' to make a guess</div>
+                      <div className="ml-4">- 'hogwarts skip' to skip this character</div>
+                      <div>Type 'hogwarts hint' to get your first hint!</div>
+                    </div>
+                  }
+                  color={themeColors.primary}
+                />
+              );
+            } else {
+              newOutput = (
+                <TypedOutput
+                  text="Failed to fetch new character. Please try again."
+                  color={themeColors.error}
+                />
+              );
+            }
+          }
+        } else if (args[0] === "hint" && currentHPGame) {
+          if (hpHintsUsed >= currentHPGame.hints.length) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaSkull />
+                    <span>No more hints available!</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else {
+            setHPHintsUsed(hpHintsUsed + 1);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaMagic />
+                    <span>Hint #{hpHintsUsed + 1}: {currentHPGame.hints[hpHintsUsed]}</span>
+                  </div>
+                }
+                color={themeColors.info}
+              />
+            );
+          }
+        } else if (args[0] === "guess" && currentHPGame) {
+          const guess = args.slice(1).join(' ').toLowerCase();
+          if (!guess) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>Please provide a guess! Usage: hogwarts guess &lt;character name&gt;</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else if (guess === currentHPGame.name.toLowerCase()) {
+            const score = Math.max(100 - (hpHintsUsed * 12), 16);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <FaHatWizard className="text-yellow-400" />
+                      <span>Brilliant! You've identified the character correctly!</span>
+                    </div>
+                    <div className="ml-6">
+                      <img 
+                        src={currentHPGame.image} 
+                        alt={currentHPGame.name} 
+                        className="h-48 w-40 object-cover my-2 rounded-lg shadow-lg" 
+                      />
+                      <div className="font-bold text-lg">{currentHPGame.name}</div>
+                      <div>House: {currentHPGame.details.house}</div>
+                      <div>Patronus: {currentHPGame.details.patronus}</div>
+                      <div>Wand: {currentHPGame.details.wand}</div>
+                      <div>Ancestry: {currentHPGame.details.ancestry}</div>
+                      <div className="mt-2">Score: {score} points</div>
+                    </div>
+                    <div className="mt-2">Type 'hogwarts start' to play again!</div>
+                  </div>
+                }
+                color={themeColors.success}
+              />
+            );
+            setCurrentHPGame(null);
+            setHPHintsUsed(0);
+          } else {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaSkull />
+                    <span>Wrong guess! Try again or type 'hogwarts hint' for another hint.</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          }
+        } else if (args[0] === "start") {
+          const character = await fetchHPCharacter();
+          if (character) {
+            setCurrentHPGame(character);
+            setHPHintsUsed(0);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex flex-col gap-2">
+                    <div>⚡ Welcome to the Hogwarts Character Challenge!</div>
+                    <img 
+                      src={character.image} 
+                      alt="Character" 
+                      className="h-48 w-40 object-cover my-2 rounded-lg shadow-lg" 
+                    />
+                    <div>Can you identify this witch or wizard?</div>
+                    <div>Commands:</div>
+                    <div className="ml-4">- 'hogwarts hint' for a hint</div>
+                    <div className="ml-4">- 'hogwarts guess &lt;character name&gt;' to make a guess</div>
+                    <div className="ml-4">- 'hogwarts skip' to skip this character</div>
+                    <div className="mt-2">Type 'hogwarts hint' to get your first hint!</div>
+                  </div>
+                }
+                color={themeColors.primary}
+              />
+            );
+          } else {
+            newOutput = (
+              <TypedOutput
+                text="Failed to start the game. Please try again."
+                color={themeColors.error}
+              />
+            );
+          }
+        } else {
+          newOutput = (
+            <TypedOutput
+              text={
+                <div className="flex flex-col gap-2">
+                  <div>⚡ Hogwarts Character Challenge</div>
+                  <div>Commands:</div>
+                  <div className="ml-4">- 'hogwarts start' to start a new game</div>
+                  <div className="ml-4">- 'hogwarts hint' for a hint</div>
+                  <div className="ml-4">- 'hogwarts guess &lt;character name&gt;' to make a guess</div>
+                  <div className="ml-4">- 'hogwarts skip' to skip current character</div>
+                </div>
+              }
+              color={themeColors.info}
+            />
+          );
+        }
+        break;
+      case "marvel":
+        if (args[0] === "skip") {
+          if (!currentMarvelGame) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>No active game! Type 'marvel start' to begin.</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else {
+            const skippedCharacter = currentMarvelGame.name;
+            const newCharacter = await fetchMarvelCharacter();
+            if (newCharacter) {
+              setCurrentMarvelGame(newCharacter);
+              setMarvelHintsUsed(0);
+              newOutput = (
+                <TypedOutput
+                  text={
+                    <div className="flex flex-col gap-2">
+                      <div>The character was {skippedCharacter}! Here's your new character:</div>
+                      <img 
+                        src={newCharacter.image} 
+                        alt="Character" 
+                        className="h-48 w-40 object-cover my-2 rounded-lg shadow-lg" 
+                      />
+                      <div>Commands:</div>
+                      <div className="ml-4">- 'marvel hint' for a hint</div>
+                      <div className="ml-4">- 'marvel guess &lt;character name&gt;' to make a guess</div>
+                      <div className="ml-4">- 'marvel skip' to skip this character</div>
+                      <div>Type 'marvel hint' to get your first hint!</div>
+                    </div>
+                  }
+                  color={themeColors.primary}
+                />
+              );
+            } else {
+              newOutput = (
+                <TypedOutput
+                  text="Failed to fetch new character. Please try again."
+                  color={themeColors.error}
+                />
+              );
+            }
+          }
+        } else if (args[0] === "hint" && currentMarvelGame) {
+          if (marvelHintsUsed >= currentMarvelGame.hints.length) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaSkull />
+                    <span>No more hints available!</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else {
+            setMarvelHintsUsed(marvelHintsUsed + 1);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaMask />
+                    <span>Hint #{marvelHintsUsed + 1}: {currentMarvelGame.hints[marvelHintsUsed]}</span>
+                  </div>
+                }
+                color={themeColors.info}
+              />
+            );
+          }
+        } else if (args[0] === "guess" && currentMarvelGame) {
+          const guess = args.slice(1).join(' ').toLowerCase();
+          if (!guess) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>Please provide a guess! Usage: marvel guess &lt;character name&gt;</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else if (guess === currentMarvelGame.name.toLowerCase()) {
+            const score = Math.max(100 - (marvelHintsUsed * 15), 10);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <FaSuperpowers className="text-yellow-400" />
+                      <span>Excelsior! You've identified the character correctly!</span>
+                    </div>
+                    <div className="ml-6">
+                      <img 
+                        src={currentMarvelGame.image} 
+                        alt={currentMarvelGame.name} 
+                        className="h-48 w-40 object-cover my-2 rounded-lg shadow-lg" 
+                      />
+                      <div className="font-bold text-lg">{currentMarvelGame.name}</div>
+                      <div className="mt-2">{currentMarvelGame.details.description}</div>
+                      <div className="mt-2">
+                        <div>Comics: {currentMarvelGame.details.comics}</div>
+                        <div>Series: {currentMarvelGame.details.series}</div>
+                        <div>Stories: {currentMarvelGame.details.stories}</div>
+                      </div>
+                      {(currentMarvelGame.details.wiki || currentMarvelGame.details.comiclink) && (
+                        <div className="mt-2 flex gap-4">
+                          {currentMarvelGame.details.wiki && (
+                            <a 
+                              href={currentMarvelGame.details.wiki}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`${themeColors.link} hover:underline flex items-center gap-1`}
+                            >
+                              <FaSuperpowers /> Wiki
+                            </a>
+                          )}
+                          {currentMarvelGame.details.comiclink && (
+                            <a 
+                              href={currentMarvelGame.details.comiclink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`${themeColors.link} hover:underline flex items-center gap-1`}
+                            >
+                              <FaMask /> Comics
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      <div className="mt-2">Score: {score} points</div>
+                    </div>
+                    <div className="mt-2">Type 'marvel start' to play again!</div>
+                  </div>
+                }
+                color={themeColors.success}
+              />
+            );
+            setCurrentMarvelGame(null);
+            setMarvelHintsUsed(0);
+          } else {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaSkull />
+                    <span>Wrong guess! Try again or type 'marvel hint' for another hint.</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          }
+        } else if (args[0] === "start") {
+          const character = await fetchMarvelCharacter();
+          if (character) {
+            setCurrentMarvelGame(character);
+            setMarvelHintsUsed(0);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex flex-col gap-2">
+                    <div>⚡ Welcome to the Marvel Character Challenge!</div>
+                    <img 
+                      src={character.image} 
+                      alt="Character" 
+                      className="h-48 w-40 object-cover my-2 rounded-lg shadow-lg" 
+                    />
+                    <div>Can you identify this Marvel character?</div>
+                    <div>Commands:</div>
+                    <div className="ml-4">- 'marvel hint' for a hint</div>
+                    <div className="ml-4">- 'marvel guess &lt;character name&gt;' to make a guess</div>
+                    <div className="ml-4">- 'marvel skip' to skip this character</div>
+                    <div className="mt-2">Type 'marvel hint' to get your first hint!</div>
+                  </div>
+                }
+                color={themeColors.primary}
+              />
+            );
+          } else {
+            newOutput = (
+              <TypedOutput
+                text="Failed to start the game. Please try again."
+                color={themeColors.error}
+              />
+            );
+          }
+        } else {
+          newOutput = (
+            <TypedOutput
+              text={
+                <div className="flex flex-col gap-2">
+                  <div>⚡ Marvel Character Challenge</div>
+                  <div>Commands:</div>
+                  <div className="ml-4">- 'marvel start' to start a new game</div>
+                  <div className="ml-4">- 'marvel hint' for a hint</div>
+                  <div className="ml-4">- 'marvel guess &lt;character name&gt;' to make a guess</div>
+                  <div className="ml-4">- 'marvel skip' to skip current character</div>
                 </div>
               }
               color={themeColors.info}
