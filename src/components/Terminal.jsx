@@ -9,14 +9,14 @@ import {
     FaNodeJs, FaDatabase, FaGithub, 
     FaRocket, FaCode, FaTools, FaCoffee, FaLightbulb, FaClock,
     FaEnvelope, FaLinkedin, FaFileAlt, FaInstagram,
-    FaComment, FaTwitter, FaInfo, FaBriefcase,
-    FaStar, FaFilm, FaKey, FaQuoteLeft, FaLaugh, FaCloud
+    FaComment, FaBriefcase,
+    FaStar, FaFilm, FaKey, FaQuoteLeft, FaLaugh, FaCloud, 
 } from 'react-icons/fa';
 import { 
     BiErrorCircle, BiInfoCircle, BiRightArrow 
 } from 'react-icons/bi';
 
-import { fetchQuote, fetchJoke, fetchAnime, fetchFact, fetchWeather } from '../services/api';
+import { fetchQuote, fetchJoke, fetchAnime, fetchFact, fetchWeather, searchMusic, fetchRandomCountry } from '../services/api';
 
 const TerminalComponent = (props = {}) => {
   const [terminalLineData, setTerminalLineData] = useState([
@@ -26,6 +26,8 @@ const TerminalComponent = (props = {}) => {
   ]);
   const [theme, setTheme] = useState('dark');
   const [startTime] = useState(new Date());
+  const [currentGame, setCurrentGame] = useState(null);
+  const [hintsUsed, setHintsUsed] = useState(0);
 
   // Helper function to get theme-appropriate colors
   const getThemeColor = useCallback((darkColor, lightColor) => {
@@ -184,26 +186,6 @@ const TerminalComponent = (props = {}) => {
             </div>
           </TerminalOutput>
         );
-        break;
-        const projectName = args.join(' ');
-        const project = projects.find(p => p.name.toLowerCase() === projectName.toLowerCase());
-        if (project) {
-          newOutput = (
-            <TypedOutput
-              text={
-                <div className="flex flex-col gap-2">
-                  <div><FaCode className="inline mr-2" />{project.name}</div>
-                  <div className="ml-4">{project.description}</div>
-                  <div className="ml-4"><FaGithub className="inline mr-2" />GitHub: {project.github}</div>
-                  <div className="ml-4"><FaRocket className="inline mr-2" />Demo: {project.demo}</div>
-                </div>
-              }
-              color={themeColors.primary}
-            />
-          );
-        } else {
-          newOutput = <TypedOutput text="Project not found. Use 'projects' to see available projects." color={themeColors.error} />;
-        }
         break;
       case "resume":
         newOutput = (
@@ -419,23 +401,6 @@ const TerminalComponent = (props = {}) => {
           />
         );
         break;
-        newOutput = (
-          <TypedOutput
-            text={
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <FaInfo />
-                  <span>This terminal portfolio showcases my work and skills in an interactive way.</span>
-                </div>
-                <div className="ml-6">
-                  Built with React, Tailwind CSS, and a passion for unique user experiences.
-                </div>
-              </div>
-            }
-            color={themeColors.primary}
-          />
-        );
-        break;
       case "feedback":
         newOutput = (
           <TypedOutput
@@ -524,6 +489,177 @@ const TerminalComponent = (props = {}) => {
               />
             );
           }
+        }
+        break;
+      case "country":
+        if (args[0] === "skip") {
+          if (!currentGame) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>No active game! Type 'country start' to begin.</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else {
+            const skippedCountry = currentGame.name;
+            const newCountry = await fetchRandomCountry();
+            if (newCountry) {
+              setCurrentGame(newCountry);
+              setHintsUsed(0);
+              newOutput = (
+                <TypedOutput
+                  text={
+                    <div className="flex flex-col gap-2">
+                      <div>Skipped {skippedCountry}! Here's your new country:</div>
+                      <img src={newCountry.flag} alt="Country Flag" className="h-16 my-2" />
+                      <div>Commands:</div>
+                      <div className="ml-4">- 'country hint' for a hint</div>
+                      <div className="ml-4">- 'country guess &lt;country name&gt;' to make a guess</div>
+                      <div className="ml-4">- 'country skip' to skip this country</div>
+                      <div>First hint: {newCountry.hints[0]}</div>
+                    </div>
+                  }
+                  color={themeColors.primary}
+                />
+              );
+            } else {
+              newOutput = (
+                <TypedOutput
+                  text="Failed to fetch new country. Please try again."
+                  color={themeColors.error}
+                />
+              );
+            }
+          }
+        } else if (args[0] === "hint" && currentGame) {
+          if (hintsUsed >= currentGame.hints.length) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>No more hints available!</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else {
+            setHintsUsed(hintsUsed + 1);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <FaLightbulb />
+                    <span>Hint #{hintsUsed + 1}: {currentGame.hints[hintsUsed]}</span>
+                  </div>
+                }
+                color={themeColors.info}
+              />
+            );
+          }
+        } else if (args[0] === "guess" && currentGame) {
+          const guess = args.slice(1).join(' ').toLowerCase();
+          if (!guess) {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>Please provide a guess! Usage: country guess &lt;country name&gt;</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          } else if (guess === currentGame.name.toLowerCase()) {
+            const score = Math.max(100 - (hintsUsed * 20), 20);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <FaStar className="text-yellow-400" />
+                      <span>Congratulations! You guessed correctly!</span>
+                    </div>
+                    <div className="ml-6">
+                      <img src={currentGame.flag} alt={`Flag of ${currentGame.name}`} className="h-16 my-2" />
+                      <div>Country: {currentGame.name}</div>
+                      <div>Capital: {currentGame.capital}</div>
+                      <div>Score: {score} points</div>
+                    </div>
+                    <div className="mt-2">Type 'country start' to play again!</div>
+                  </div>
+                }
+                color={themeColors.success}
+              />
+            );
+            setCurrentGame(null);
+            setHintsUsed(0);
+          } else {
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex items-center gap-2">
+                    <BiErrorCircle />
+                    <span>Wrong guess! Try again or type 'country hint' for a hint.</span>
+                  </div>
+                }
+                color={themeColors.error}
+              />
+            );
+          }
+        } else if (args[0] === "start") {
+          const country = await fetchRandomCountry();
+          if (country) {
+            setCurrentGame(country);
+            setHintsUsed(0);
+            newOutput = (
+              <TypedOutput
+                text={
+                  <div className="flex flex-col gap-2">
+                    <div>🌍 Welcome to Guess the Country!</div>
+                    <img src={country.flag} alt="Country Flag" className="h-16 my-2" />
+                    <div>I'm thinking of a country... Try to guess it!</div>
+                    <div>Commands:</div>
+                    <div className="ml-4">- 'country hint' for a hint</div>
+                    <div className="ml-4">- 'country guess &lt;country name&gt;' to make a guess</div>
+                    <div className="ml-4">- 'country skip' to skip this country</div>
+                    <div className="mt-2">Type 'country hint' to get your first hint!</div>
+                  </div>
+                }
+                color={themeColors.primary}
+              />
+            );
+          } else {
+            newOutput = (
+              <TypedOutput
+                text="Failed to start the game. Please try again."
+                color={themeColors.error}
+              />
+            );
+          }
+        } else {
+          newOutput = (
+            <TypedOutput
+              text={
+                <div className="flex flex-col gap-2">
+                  <div>🌍 Guess the Country Game</div>
+                  <div>Commands:</div>
+                  <div className="ml-4">- 'country start' to start a new game</div>
+                  <div className="ml-4">- 'country hint' for a hint</div>
+                  <div className="ml-4">- 'country guess &lt;country name&gt;' to make a guess</div>
+                  <div className="ml-4">- 'country skip' to skip current country</div>
+                </div>
+              }
+              color={themeColors.info}
+            />
+          );
         }
         break;
       default:

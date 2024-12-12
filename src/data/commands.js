@@ -18,6 +18,7 @@ const commands = {
     joke: "Hear a programming joke.",
     hireme: "See why you should hire this developer.",
     weather: "Check weather for a specific city (usage: weather <city>)",
+    country: "Play the guess the country game (usage: country start)",
 };
 
 export default commands;
